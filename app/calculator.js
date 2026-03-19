@@ -510,7 +510,7 @@ const BODY_HTML = `
       <div class="card">
         <h2>Growth Assumptions</h2>
         <div class="impact-callout">
-          Laylo creators typically grow their fan lists by <strong>50\u2013100%+</strong>. Many see <strong>2x or more</strong> within the first year. The slider below starts at a conservative estimate.
+          Typical Laylo list growth: <strong>50\u2013100%+</strong>. Default below is conservative.
         </div>
 
         <div class="input-group">
