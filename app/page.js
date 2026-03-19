@@ -1,6 +1,6 @@
 import Calculator from './calculator'
 
-function computeRevenue({ fans = 25000, ticket = 65, events = 4, growth = 40, conv = 3 }) {
+function computeRevenue({ fans = 25000, ticket = 65, events = 4, growth = 50, conv = 3 }) {
   const newFans = Math.round(fans * (growth / 100))
   const extraRev = newFans * (conv / 100) * ticket * events
   return { newFans, extraRev }
@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }) {
   const fans = parseFloat(params.fans) || 25000
   const ticket = parseFloat(params.ticket) || 65
   const events = parseFloat(params.events) || 4
-  const growth = parseFloat(params.growth) || 40
+  const growth = parseFloat(params.growth) || 50
   const conv = parseFloat(params.conv) || 3
 
   const { newFans, extraRev } = computeRevenue({ fans, ticket, events, growth, conv })

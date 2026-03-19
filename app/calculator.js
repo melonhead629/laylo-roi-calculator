@@ -164,7 +164,7 @@ const CSS = `
     pointer-events: none;
     z-index: 1;
   }
-  input[type="number"] {
+  input[type="number"], input[type="text"].num-input {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -178,13 +178,24 @@ const CSS = `
     transition: border-color 0.15s, box-shadow 0.15s;
     letter-spacing: -0.5px;
   }
-  input[type="number"].has-prefix { padding-left: 34px; }
-  input[type="number"]:focus {
+  input[type="number"].has-prefix, input[type="text"].has-prefix { padding-left: 34px; }
+  input[type="number"]:focus, input[type="text"].num-input:focus {
     border-color: var(--teal-2);
     box-shadow: 0 0 0 3px rgba(56,189,248,0.08);
   }
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .impact-callout {
+    background: rgba(52,211,153,0.06);
+    border: 1px solid rgba(52,211,153,0.15);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .impact-callout strong { color: var(--green); font-weight: 700; }
   /* Slider */
   .slider-row {
     display: flex;
@@ -479,33 +490,36 @@ const BODY_HTML = `
 
         <div class="input-group">
           <label class="input-label" for="listSize">Current Fan List Size</label>
-          <input type="number" id="listSize" value="25000" min="100" max="10000000" oninput="calculate()">
+          <input type="text" inputmode="numeric" class="num-input" id="listSize" value="25,000" data-raw="25000" oninput="handleNumInput(this)" onfocus="showRaw(this)" onblur="showFormatted(this)">
         </div>
 
         <div class="input-group">
           <label class="input-label" for="ticketPrice">Avg Ticket Price</label>
           <div class="number-input-wrapper">
             <span class="number-prefix">$</span>
-            <input type="number" id="ticketPrice" class="has-prefix" value="65" min="1" max="5000" oninput="calculate()">
+            <input type="text" inputmode="numeric" class="num-input has-prefix" id="ticketPrice" value="65" data-raw="65" oninput="handleNumInput(this)" onfocus="showRaw(this)" onblur="showFormatted(this)">
           </div>
         </div>
 
         <div class="input-group">
           <label class="input-label" for="eventsPerYear">Events / Drops Per Year</label>
-          <input type="number" id="eventsPerYear" value="4" min="1" max="365" oninput="calculate()">
+          <input type="text" inputmode="numeric" class="num-input" id="eventsPerYear" value="4" data-raw="4" oninput="handleNumInput(this)" onfocus="showRaw(this)" onblur="showFormatted(this)">
         </div>
       </div>
 
       <div class="card">
         <h2>Growth Assumptions</h2>
+        <div class="impact-callout">
+          Laylo creators typically grow their fan lists by <strong>50\u2013100%+</strong>. Many see <strong>2x or more</strong> within the first year. The slider below starts at a conservative estimate.
+        </div>
 
         <div class="input-group">
           <label class="input-label">List Growth with Laylo</label>
           <div class="slider-row">
             <span class="slider-desc">New fans added to your list</span>
-            <span class="slider-current" id="listGrowthDisplay">40%</span>
+            <span class="slider-current" id="listGrowthDisplay">50%</span>
           </div>
-          <input type="range" id="listGrowth" min="5" max="150" value="40" oninput="handleSlider(this, 'listGrowthDisplay', '%')">
+          <input type="range" id="listGrowth" min="5" max="200" value="50" oninput="handleSlider(this, 'listGrowthDisplay', '%')">
         </div>
 
         <div class="input-group">
@@ -521,7 +535,7 @@ const BODY_HTML = `
           <label class="input-label" for="layloInvestment">Laylo Annual Investment</label>
           <div class="number-input-wrapper">
             <span class="number-prefix">$</span>
-            <input type="number" id="layloInvestment" class="has-prefix" value="7200" min="0" max="500000" oninput="calculate()">
+            <input type="text" inputmode="numeric" class="num-input has-prefix" id="layloInvestment" value="7,200" data-raw="7200" oninput="handleNumInput(this)" onfocus="showRaw(this)" onblur="showFormatted(this)">
           </div>
         </div>
       </div>
@@ -637,7 +651,10 @@ export default function Calculator() {
         var inputId = PARAM_MAP[param];
         var val = params.get(param);
         if (val !== null && !isNaN(parseFloat(val))) {
-          document.getElementById(inputId).value = val;
+          var el = document.getElementById(inputId);
+          var raw = parseFloat(val);
+          el.setAttribute('data-raw', raw);
+          el.value = raw >= 1000 ? formatWithCommas(raw) : String(raw);
         }
       }
     }
@@ -648,7 +665,7 @@ export default function Calculator() {
       var state = {};
       if (name) state.name = name;
       for (var param in PARAM_MAP) {
-        state[param] = document.getElementById(PARAM_MAP[param]).value;
+        state[param] = getVal(PARAM_MAP[param]);
       }
       var qs = new URLSearchParams(state).toString();
       history.replaceState(null, '', '?' + qs);
@@ -668,6 +685,32 @@ export default function Calculator() {
       return '$' + Math.round(n).toLocaleString('en-US');
     }
 
+    // --- Number input formatting ---
+    function formatWithCommas(n) {
+      return Math.round(n).toLocaleString('en-US');
+    }
+    function parseRaw(str) {
+      return parseFloat(String(str).replace(/,/g, '')) || 0;
+    }
+    window.handleNumInput = function(el) {
+      var raw = parseRaw(el.value);
+      el.setAttribute('data-raw', raw);
+      window.calculate();
+    };
+    window.showRaw = function(el) {
+      var raw = el.getAttribute('data-raw') || '0';
+      el.value = raw;
+    };
+    window.showFormatted = function(el) {
+      var raw = parseRaw(el.value);
+      el.setAttribute('data-raw', raw);
+      el.value = raw >= 1000 ? formatWithCommas(raw) : String(raw);
+    };
+    function getVal(id) {
+      var el = document.getElementById(id);
+      return parseRaw(el.getAttribute('data-raw') || el.value);
+    }
+
     window.handleSlider = function(el, displayId, suffix) {
       var val = parseFloat(el.value);
       var min = parseFloat(el.min);
@@ -679,12 +722,12 @@ export default function Calculator() {
     };
 
     window.calculate = function() {
-      var listSize       = parseFloat(document.getElementById('listSize').value)       || 0;
-      var ticketPrice    = parseFloat(document.getElementById('ticketPrice').value)    || 0;
-      var eventsPerYear  = parseFloat(document.getElementById('eventsPerYear').value)  || 0;
+      var listSize       = getVal('listSize');
+      var ticketPrice    = getVal('ticketPrice');
+      var eventsPerYear  = getVal('eventsPerYear');
       var listGrowthPct  = parseFloat(document.getElementById('listGrowth').value)     / 100;
       var convRate       = parseFloat(document.getElementById('convRate').value)       / 100;
-      var layloInvest    = parseFloat(document.getElementById('layloInvestment').value) || 0;
+      var layloInvest    = getVal('layloInvestment');
 
       var newFans        = Math.round(listSize * listGrowthPct);
       var newListSize    = listSize + newFans;
