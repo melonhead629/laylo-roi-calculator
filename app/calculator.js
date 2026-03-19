@@ -476,10 +476,25 @@ const BODY_HTML = `
       </div>
       <h1 id="page-title">What's a bigger fan list worth?</h1>
       <p class="header-subtitle" id="page-subtitle">Enter your numbers below. Watch the revenue update in real time.</p>
-      <div class="pill-row">
-        <span class="pill">Fan List Growth</span>
-        <span class="pill">Ticket Revenue</span>
-        <span class="pill">ROI Multiple</span>
+    </div>
+
+    <!-- Live Results -->
+    <div class="results-grid">
+      <div class="result-card hl-teal">
+        <div class="result-value teal" id="res-newfans">10,000</div>
+        <div class="result-label">New Fans Added</div>
+      </div>
+      <div class="result-card hl-teal">
+        <div class="result-value teal" id="res-tickets">1,200</div>
+        <div class="result-label">Extra Tickets / Year</div>
+      </div>
+      <div class="result-card hl-green">
+        <div class="result-value green" id="res-revenue">$78K</div>
+        <div class="result-label">Additional Revenue</div>
+      </div>
+      <div class="result-card hl-purple">
+        <div class="result-value purple" id="res-roi">10.8x</div>
+        <div class="result-label">ROI Multiple</div>
       </div>
     </div>
 
@@ -541,34 +556,6 @@ const BODY_HTML = `
       </div>
     </div>
 
-    <!-- Live Results -->
-    <div class="results-grid">
-      <div class="result-card hl-teal">
-        <div class="result-value teal" id="res-newfans">10,000</div>
-        <div class="result-label">New Fans Added</div>
-      </div>
-      <div class="result-card hl-teal">
-        <div class="result-value teal" id="res-tickets">1,200</div>
-        <div class="result-label">Extra Tickets / Year</div>
-      </div>
-      <div class="result-card hl-green">
-        <div class="result-value green" id="res-revenue">$78K</div>
-        <div class="result-label">Additional Revenue</div>
-      </div>
-      <div class="result-card hl-purple">
-        <div class="result-value purple" id="res-roi">10.8x</div>
-        <div class="result-label">ROI Multiple</div>
-      </div>
-    </div>
-
-    <!-- Share Button -->
-    <div class="share-bar">
-      <button class="share-btn" id="share-btn" onclick="shareProjection()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-        Share This Projection
-      </button>
-    </div>
-
     <!-- Comparison Table -->
     <div class="card">
       <h2>Before vs. After Laylo</h2>
@@ -601,6 +588,14 @@ const BODY_HTML = `
         <div class="compare-before"></div>
         <div class="compare-after" id="cmp-diff">+$78,000</div>
       </div>
+    </div>
+
+    <!-- Share Button -->
+    <div class="share-bar">
+      <button class="share-btn" id="share-btn" onclick="shareProjection()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Share This Projection
+      </button>
     </div>
 
     <p class="assumption-note">Assumes consistent conversion rate across events. Actual results vary based on audience quality, messaging, and drop strategy.</p>
