@@ -439,8 +439,8 @@
           <span class="badge badge-green">Live</span>
         </div>
       </div>
-      <h1>What's a bigger fan list worth?</h1>
-      <p class="header-subtitle">Enter your numbers below. Watch the revenue update in real time.</p>
+      <h1 id="page-title">What's a bigger fan list worth?</h1>
+      <p class="header-subtitle" id="page-subtitle">Enter your numbers below. Watch the revenue update in real time.</p>
       <div class="pill-row">
         <span class="pill">Fan List Growth</span>
         <span class="pill">Ticket Revenue</span>
@@ -581,6 +581,51 @@
   </div>
 
   <script>
+    // --- URL param config ---
+    // Supported params: ?name=Live%20Nation&fans=50000&ticket=85&events=12&growth=40&conv=3&invest=7200
+    const PARAM_MAP = {
+      fans:   'listSize',
+      ticket: 'ticketPrice',
+      events: 'eventsPerYear',
+      growth: 'listGrowth',
+      conv:   'convRate',
+      invest: 'layloInvestment'
+    };
+
+    function loadFromURL() {
+      const params = new URLSearchParams(window.location.search);
+
+      // Personalize header if name param is present
+      const name = params.get('name');
+      if (name) {
+        document.getElementById('page-title').textContent = name + '\u2019s ROI with Laylo';
+        document.getElementById('page-subtitle').textContent = 'A personalized revenue projection. Adjust the numbers to explore.';
+        document.title = name + ' \u2014 Laylo ROI Calculator';
+      }
+
+      // Set input values from URL params
+      for (const [param, inputId] of Object.entries(PARAM_MAP)) {
+        const val = params.get(param);
+        if (val !== null && !isNaN(parseFloat(val))) {
+          document.getElementById(inputId).value = val;
+        }
+      }
+    }
+
+    function syncToURL() {
+      const params = new URLSearchParams(window.location.search);
+      const name = params.get('name');
+
+      const state = {};
+      if (name) state.name = name;
+      for (const [param, inputId] of Object.entries(PARAM_MAP)) {
+        state[param] = document.getElementById(inputId).value;
+      }
+      const qs = new URLSearchParams(state).toString();
+      history.replaceState(null, '', '?' + qs);
+    }
+
+    // --- Formatting ---
     function fmtNum(n) {
       return Math.round(n).toLocaleString('en-US');
     }
@@ -595,11 +640,12 @@
       return '$' + Math.round(n).toLocaleString('en-US');
     }
 
+    // --- Slider + Calculate ---
     function handleSlider(el, displayId, suffix) {
-      const val   = parseFloat(el.value);
-      const min   = parseFloat(el.min);
-      const max   = parseFloat(el.max);
-      const pct   = ((val - min) / (max - min)) * 100;
+      const val = parseFloat(el.value);
+      const min = parseFloat(el.min);
+      const max = parseFloat(el.max);
+      const pct = ((val - min) / (max - min)) * 100;
       el.style.setProperty('--pct', pct + '%');
       document.getElementById(displayId).textContent = val + suffix;
       calculate();
@@ -642,9 +688,12 @@
       document.getElementById('cmp-rev-after').textContent      = fmtCurrencyFull(revWith);
       document.getElementById('cmp-diff').textContent           = '+' + fmtCurrencyFull(extraRev);
 
+      // Sync current state to URL
+      syncToURL();
     }
 
-    // Init sliders and calculate on load
+    // --- Init ---
+    loadFromURL();
     document.getElementById('listGrowth').oninput();
     document.getElementById('convRate').oninput();
   </script>
