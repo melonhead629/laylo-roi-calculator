@@ -598,7 +598,7 @@ const BODY_HTML = `
       </button>
     </div>
 
-    <p class="assumption-note">Assumes consistent conversion rate across events. Actual results vary based on audience quality, messaging, and drop strategy.</p>
+    <p class="assumption-note">Conversion rate is applied per event/drop. Actual results vary by audience quality, messaging, and drop strategy.</p>
 
     <!-- Footer -->
     <hr class="divider">
@@ -741,7 +741,7 @@ export default function Calculator() {
       document.getElementById('res-tickets').textContent  = fmtNum(extraTickets);
       document.getElementById('res-revenue').textContent  = fmtCurrencyShort(extraRev);
       document.getElementById('res-roi').textContent      = roiMultiple > 0
-        ? roiMultiple.toFixed(1) + 'x' : '--';
+        ? (roiMultiple > 999 ? '999x+' : roiMultiple.toFixed(1) + 'x') : '--';
 
       document.getElementById('cmp-list-before').textContent    = fmtNum(listSize);
       document.getElementById('cmp-list-after').textContent     = fmtNum(newListSize);
