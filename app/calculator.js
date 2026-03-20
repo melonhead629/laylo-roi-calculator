@@ -29,7 +29,7 @@ const CSS = `
   .page {
     max-width: 900px;
     margin: 0 auto;
-    padding: 48px 40px 64px;
+    padding: 32px 40px 64px;
     position: relative;
     min-height: 100vh;
   }
@@ -46,8 +46,8 @@ const CSS = `
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 36px 40px;
-    margin-bottom: 24px;
+    padding: 28px 36px;
+    margin-bottom: 16px;
     position: relative;
     overflow: hidden;
   }
@@ -63,7 +63,7 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
   }
   .wordmark { display: block; height: 36px; width: auto; }
   .badge-row { display: flex; gap: 8px; align-items: center; }
@@ -87,17 +87,17 @@ const CSS = `
     background: rgba(52,211,153,0.06);
   }
   .header h1 {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 800;
     color: var(--white);
     letter-spacing: -0.8px;
     line-height: 1.1;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .header-subtitle {
     color: var(--muted);
-    font-size: 15px;
-    margin-bottom: 18px;
+    font-size: 14px;
+    margin-bottom: 0;
   }
   .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .pill {
@@ -115,8 +115,8 @@ const CSS = `
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 28px 32px;
-    margin-bottom: 20px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
   }
   /* Typography */
   h2 {
@@ -136,12 +136,12 @@ const CSS = `
   .calc-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 16px;
+    margin-bottom: 16px;
     align-items: start;
   }
   .calc-grid .card { margin-bottom: 0; display: flex; flex-direction: column; }
-  .input-group { margin-bottom: 24px; }
+  .input-group { margin-bottom: 18px; }
   .input-group:last-child { margin-bottom: 0; }
   .input-label {
     font-size: 11px;
@@ -170,9 +170,9 @@ const CSS = `
     border-radius: 10px;
     color: var(--white);
     font-family: 'Inter', sans-serif;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 800;
-    padding: 12px 14px;
+    padding: 10px 14px;
     width: 100%;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
@@ -249,14 +249,14 @@ const CSS = `
   .results-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 16px;
   }
   .result-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 22px 16px;
+    padding: 18px 14px;
     text-align: center;
     transition: transform 0.15s, border-color 0.15s;
   }
@@ -339,8 +339,8 @@ const CSS = `
   .compare-row:last-child { border-bottom: none; }
   .compare-row.diff-row {
     background: linear-gradient(90deg, transparent, rgba(52,211,153,0.04) 30%, rgba(52,211,153,0.08) 100%);
-    margin: 4px -32px 0;
-    padding: 15px 32px;
+    margin: 4px -28px 0;
+    padding: 15px 28px;
     border-bottom: none;
     border-top: 1px solid rgba(52,211,153,0.15);
     border-radius: 0 0 14px 14px;
