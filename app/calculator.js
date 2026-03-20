@@ -766,74 +766,70 @@ export default function Calculator() {
       });
     };
 
-    // --- Animate numbers on load ---
-    function animateValue(el, target, duration, formatter) {
-      var start = 0;
+    // --- Animate numbers ---
+    var _animState = {};
+    function animateTo(id, target, duration, formatter) {
+      var el = document.getElementById(id);
+      var from = _animState[id] || 0;
+      if (_animState[id + '_raf']) cancelAnimationFrame(_animState[id + '_raf']);
       var startTime = null;
       function step(timestamp) {
         if (!startTime) startTime = timestamp;
         var progress = Math.min((timestamp - startTime) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-        var current = Math.round(start + (target - start) * eased);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = from + (target - from) * eased;
         el.textContent = formatter(current);
-        if (progress < 1) requestAnimationFrame(step);
+        if (progress < 1) {
+          _animState[id + '_raf'] = requestAnimationFrame(step);
+        } else {
+          _animState[id] = target;
+        }
       }
-      requestAnimationFrame(step);
+      _animState[id + '_raf'] = requestAnimationFrame(step);
     }
 
-    window._skipAnimate = false;
+    function fmtRoi(n) {
+      if (n > 999) return '999x+';
+      return n.toFixed(1) + 'x';
+    }
 
-    // Wrap calculate to animate on first run
     var _originalCalculate = window.calculate;
-    var _firstRun = true;
     window.calculate = function() {
-      _originalCalculate();
-      if (_firstRun && !window._skipAnimate) {
-        _firstRun = false;
-        var dur = 1200;
-        var els = {
-          'res-newfans': { val: parseFloat(document.getElementById('res-newfans').textContent.replace(/,/g, '')), fmt: fmtNum },
-          'res-tickets': { val: parseFloat(document.getElementById('res-tickets').textContent.replace(/,/g, '')), fmt: fmtNum },
-          'res-revenue': { val: 0, skip: true },
-          'res-roi': { val: 0, skip: true }
-        };
-        // Animate the numeric results
-        for (var id in els) {
-          if (els[id].skip) continue;
-          var el = document.getElementById(id);
-          var target = els[id].val;
-          if (target > 0) animateValue(el, target, dur, els[id].fmt);
-        }
-        // Animate revenue (special formatting)
-        var revEl = document.getElementById('res-revenue');
-        var revText = revEl.textContent;
-        var revTarget = 0;
-        if (revText.indexOf('M') > -1) revTarget = parseFloat(revText.replace(/[$M]/g, '')) * 1000000;
-        else if (revText.indexOf('K') > -1) revTarget = parseFloat(revText.replace(/[$K]/g, '')) * 1000;
-        else revTarget = parseFloat(revText.replace(/[$,]/g, ''));
-        if (revTarget > 0) animateValue(revEl, revTarget, dur, fmtCurrencyShort);
-        // Animate ROI
-        var roiEl = document.getElementById('res-roi');
-        var roiText = roiEl.textContent;
-        if (roiText !== '--') {
-          var roiTarget = parseFloat(roiText.replace(/[x+]/g, ''));
-          var isCapped = roiText.indexOf('+') > -1;
-          var startTime2 = null;
-          function stepRoi(timestamp) {
-            if (!startTime2) startTime2 = timestamp;
-            var progress = Math.min((timestamp - startTime2) / dur, 1);
-            var eased = 1 - Math.pow(1 - progress, 3);
-            var current = eased * roiTarget;
-            if (isCapped || current > 999) {
-              roiEl.textContent = progress < 1 ? Math.round(current) + 'x' : '999x+';
-            } else {
-              roiEl.textContent = current.toFixed(1) + 'x';
-            }
-            if (progress < 1) requestAnimationFrame(stepRoi);
-          }
-          requestAnimationFrame(stepRoi);
-        }
-      }
+      // Compute values without writing to DOM yet
+      var listSize       = getVal('listSize');
+      var ticketPrice    = getVal('ticketPrice');
+      var eventsPerYear  = getVal('eventsPerYear');
+      var listGrowthPct  = parseFloat(document.getElementById('listGrowth').value) / 100;
+      var convRate       = parseFloat(document.getElementById('convRate').value) / 100;
+      var layloInvest    = getVal('layloInvestment');
+
+      var newFans        = Math.round(listSize * listGrowthPct);
+      var newListSize    = listSize + newFans;
+      var ticketsWithout = Math.round(listSize * convRate * eventsPerYear);
+      var ticketsWith    = Math.round(newListSize * convRate * eventsPerYear);
+      var extraTickets   = ticketsWith - ticketsWithout;
+      var revWithout     = listSize * convRate * ticketPrice * eventsPerYear;
+      var revWith        = newListSize * convRate * ticketPrice * eventsPerYear;
+      var extraRev       = revWith - revWithout;
+      var roiMultiple    = layloInvest > 0 ? extraRev / layloInvest : 0;
+
+      // Animate result cards
+      var dur = 600;
+      animateTo('res-newfans', newFans, dur, fmtNum);
+      animateTo('res-tickets', extraTickets, dur, fmtNum);
+      animateTo('res-revenue', extraRev, dur, fmtCurrencyShort);
+      animateTo('res-roi', roiMultiple, dur, fmtRoi);
+
+      // Update comparison table (no animation needed)
+      document.getElementById('cmp-list-before').textContent    = fmtNum(listSize);
+      document.getElementById('cmp-list-after').textContent     = fmtNum(newListSize);
+      document.getElementById('cmp-tickets-before').textContent = fmtNum(ticketsWithout);
+      document.getElementById('cmp-tickets-after').textContent  = fmtNum(ticketsWith);
+      document.getElementById('cmp-rev-before').textContent     = fmtCurrencyFull(revWithout);
+      document.getElementById('cmp-rev-after').textContent      = fmtCurrencyFull(revWith);
+      document.getElementById('cmp-diff').textContent           = '+' + fmtCurrencyFull(extraRev);
+
+      syncToURL();
     };
 
     // --- Init ---
