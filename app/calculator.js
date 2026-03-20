@@ -766,6 +766,76 @@ export default function Calculator() {
       });
     };
 
+    // --- Animate numbers on load ---
+    function animateValue(el, target, duration, formatter) {
+      var start = 0;
+      var startTime = null;
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = Math.min((timestamp - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        var current = Math.round(start + (target - start) * eased);
+        el.textContent = formatter(current);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    window._skipAnimate = false;
+
+    // Wrap calculate to animate on first run
+    var _originalCalculate = window.calculate;
+    var _firstRun = true;
+    window.calculate = function() {
+      _originalCalculate();
+      if (_firstRun && !window._skipAnimate) {
+        _firstRun = false;
+        var dur = 1200;
+        var els = {
+          'res-newfans': { val: parseFloat(document.getElementById('res-newfans').textContent.replace(/,/g, '')), fmt: fmtNum },
+          'res-tickets': { val: parseFloat(document.getElementById('res-tickets').textContent.replace(/,/g, '')), fmt: fmtNum },
+          'res-revenue': { val: 0, skip: true },
+          'res-roi': { val: 0, skip: true }
+        };
+        // Animate the numeric results
+        for (var id in els) {
+          if (els[id].skip) continue;
+          var el = document.getElementById(id);
+          var target = els[id].val;
+          if (target > 0) animateValue(el, target, dur, els[id].fmt);
+        }
+        // Animate revenue (special formatting)
+        var revEl = document.getElementById('res-revenue');
+        var revText = revEl.textContent;
+        var revTarget = 0;
+        if (revText.indexOf('M') > -1) revTarget = parseFloat(revText.replace(/[$M]/g, '')) * 1000000;
+        else if (revText.indexOf('K') > -1) revTarget = parseFloat(revText.replace(/[$K]/g, '')) * 1000;
+        else revTarget = parseFloat(revText.replace(/[$,]/g, ''));
+        if (revTarget > 0) animateValue(revEl, revTarget, dur, fmtCurrencyShort);
+        // Animate ROI
+        var roiEl = document.getElementById('res-roi');
+        var roiText = roiEl.textContent;
+        if (roiText !== '--') {
+          var roiTarget = parseFloat(roiText.replace(/[x+]/g, ''));
+          var isCapped = roiText.indexOf('+') > -1;
+          var startTime2 = null;
+          function stepRoi(timestamp) {
+            if (!startTime2) startTime2 = timestamp;
+            var progress = Math.min((timestamp - startTime2) / dur, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = eased * roiTarget;
+            if (isCapped || current > 999) {
+              roiEl.textContent = progress < 1 ? Math.round(current) + 'x' : '999x+';
+            } else {
+              roiEl.textContent = current.toFixed(1) + 'x';
+            }
+            if (progress < 1) requestAnimationFrame(stepRoi);
+          }
+          requestAnimationFrame(stepRoi);
+        }
+      }
+    };
+
     // --- Init ---
     loadFromURL();
     document.getElementById('listGrowth').oninput();
